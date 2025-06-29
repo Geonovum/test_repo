@@ -24,7 +24,19 @@ jobs:
           path: ./artifact
 
       - name: Prepare content
-        run: find . -name snapshot.html
+        run: |
+          rm -f *.md *.html
+          mv artifact/snapshot.html index.html
+          mkdir content
+          cp index.html content/
+
+          for dir in data media js css; do
+            if [ -d "$dir" ]; then
+              cp -r "$dir" content/
+            else
+              echo "Directory '$dir' bestaat niet, wordt overgeslagen."
+            fi
+          done
 
 
       - name: Extract & validate publishing metadata
