@@ -134,7 +134,7 @@ jobs:
       - name: Check links with Muffet
         run: |
           muffet \
-            --exclude '8080\/\S*\.pdf' \
+            --exclude '\.pdf$'  \
             --exclude '^https://gitdocumentatie.*' \
             --exclude '^https://docs.geostandaarden.*' \
             --exclude '.*localhost.*' \
