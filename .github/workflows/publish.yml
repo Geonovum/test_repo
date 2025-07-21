@@ -149,6 +149,7 @@ jobs:
       - name: switch to correct branch
         if: ${{ github.event.release.prerelease == true }}
         run: |
+          cd docs.geostandaarden.nl
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
           git checkout develop || git checkout -b develop origin/develop
@@ -162,6 +163,7 @@ jobs:
       - name: Push naar develop bij pre-release
         if: ${{ github.event.release.prerelease == true }}
         run: |
+          cd docs.geostandaarden.nl
           git add .
           git commit -m "Automatische pre-release update van ${{ github.repository }}"
           git push origin develop
