@@ -25,15 +25,15 @@ jobs:
             | tee $CHECK_DIR/html-validation.json
 
 
-      - name: Check for alternateFormats
+      - name: Check for alternateFormats via Node
         id: config
         run: |
-          echo "grep=false" >> $GITHUB_OUTPUT
-          if grep -q 'alternateFormats' ./js/config.js; then
-            if grep -Pzoq 'alternateFormats:\s*\[\s*\{\s*label:\s*".+?",\s*uri:\s*".+?"\s*\}\s*\]' ./js/config.js; then
-              echo "grep=true" >> $GITHUB_OUTPUT
-            fi
-          fi
+          # Maak van js/config.js een require-bare module
+          cp ./js/config.js config.js
+          echo "module.exports = { respecConfig };" >> config.js
+          # Lees de config in Node en check of er een pdf-format is
+          node -e "const {respecConfig}=require('./config.js'); const ok=Array.isArray(respecConfig.alternateFormats) && respecConfig.alternateFormats.some(f=>f && f.label==='pdf' && f.uri); process.stdout.write(`grep=${ok}\n`)" >> $GITHUB_OUTPUT
+
 
       - name: Copy pdf.js if needed
         if: ${{ steps.config.outputs.grep == 'true' }}
