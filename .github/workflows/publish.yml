@@ -46,7 +46,7 @@ jobs:
 
           CONFIG_FILE=content/js/config.js
 
-          # 0. Strip alle //‑comments (hele regel of inline)
+          # 0. Strip alle //-comments (hele regel of inline)
           CLEAN_CONFIG=$(sed -E 's://.*$::' "$CONFIG_FILE")
 
           # 1. Helper: haal waarde op en zet om naar lowercase
@@ -110,7 +110,7 @@ jobs:
               -o "$CONFIG_JSON"
           fi
 
-          # 7. Check of pubDomain bestaat in de Geonovum-list (case‑insensitive)
+          # 7. Check of pubDomain bestaat in de Geonovum-list (case-insensitive)
           if ! jq -e --arg domain "$DOMAIN" \
               '.Geonovum[] | select((.pubDomain|ascii_downcase)==$domain)' \
               "$CONFIG_JSON" >/dev/null; then
@@ -202,6 +202,24 @@ jobs:
             "$REPO_DIR/$LINK_DIR/.htaccess"
 
           echo "Updated $REPO_DIR/$LINK_DIR/.htaccess -> /$TOPIC/$VERSION_DIR/"
+
+      - name: Verify latest pointer file
+        run: |
+          set -euo pipefail
+          LINK_DIR="$(echo '${{ steps.metadata.outputs.folderPath }}' | cut -d/ -f1)/${{ steps.metadata.outputs.shortName }}"
+          ls -la "docs.geostandaarden.nl/$LINK_DIR"
+          echo "----- .htaccess -----"
+          sed -n '1,50p' "docs.geostandaarden.nl/$LINK_DIR/.htaccess" || true
+
+      - name: Commit & push latest pointer for prerelease
+        if: ${{ github.event.release.prerelease == true }}
+        run: |
+          cd docs.geostandaarden.nl
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+          git add .
+          git commit -m "Update latest pointer (.htaccess) for prerelease ${{ github.repository }}"
+          git push origin develop
 
       - name: Create PR naar main bij release
         if: ${{ github.event.release.prerelease != true }}
