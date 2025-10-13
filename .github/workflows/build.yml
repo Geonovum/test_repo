@@ -52,7 +52,7 @@ jobs:
           echo "module.exports = { respecConfig };" >> config.js
           echo "var window = {respecMermaid:{createFigures:null}};" | cat - config.js > temp && mv temp config.js
           npm install puppeteer
-          python3 -m http.server 8080 &
+          python3 -m http.server 8081 &
           rm -f *.pdf
           node pdf.js
           mv *.pdf static/
